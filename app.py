@@ -11,22 +11,29 @@ def index():
         name = request.form["name"]
         item = request.form["item"]
 
-        # In CSV schreiben
+        # Bisherige Einträge lesen
+        guests = []
+        if os.path.exists(CSV_FILE):
+            with open(CSV_FILE, newline="") as f:
+                reader = csv.reader(f)
+                guests = list(reader)
+
+        # Prüfen, ob Item schon vergeben ist (groß/klein ignorieren)
+        if any(item.lower() == existing[1].lower() for existing in guests):
+            return render_template("index.html", guests=guests, error=f"'{item}' wurde schon eingetragen!")
+
+        # Eintrag speichern
         with open(CSV_FILE, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([name, item])
 
         return redirect("/")
 
-    # Einträge aus CSV lesen
+    # Einträge laden
     guests = []
     if os.path.exists(CSV_FILE):
         with open(CSV_FILE, newline="") as f:
             reader = csv.reader(f)
             guests = list(reader)
 
-    return render_template("index.html", guests=guests)
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    return render_template("index.html", guests=guests, error=None)
