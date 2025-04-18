@@ -51,12 +51,13 @@ def login():
         else:
             error = "Falsches Passwort."
     return render_template("login.html", error=error)
+
 @app.route("/admin")
 def admin():
     if not session.get("logged_in"):
-        return redirect("login")
+        return redirect("/login")
     
-    guest = Guest.query.all()
+    guests = Guest.query.all()
     return render_template("admin.html", guests=guests)
 
 @app.route("/delete/<int:guest_id>")
