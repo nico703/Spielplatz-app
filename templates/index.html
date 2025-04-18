@@ -55,7 +55,7 @@
         <ul class="list-group mt-3">
             {% for guest in guests %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><strong>{{ guest[0] }}</strong> bringt <em>{{ guest[1] }}</em> mit.</span>
+                    <span><strong>{{ guest.name }}</strong> bringt <em>{{ guest.item }}</em> mit.</span>
                     <span class="text-success fs-5">✅</span>
                 </li>
             {% else %}
