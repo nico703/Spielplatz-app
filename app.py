@@ -34,10 +34,41 @@ def index():
 
     guests = Guest.query.all()
     return render_template("index.html", guests=guests, error=None)
+
+from flask import session
+
+app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")  # für Sessions
+
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "geheim123")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        if request.form["password"] == ADMIN_PASSWORD:
+            session["logged_in"] = True
+            return redirect("/admin")
+        else:
+            error = "Falsches Passwort."
+    return render_template("login.html", error=error)
 @app.route("/admin")
 def admin():
+    if not session.get("logged_in"):
+        return redirect("login")
+    
     guest = Guest.query.all()
     return render_template("admin.html", guests=guests)
+
+@app.route("/delete/<int:guest_id>")
+def delete_guest(guest_id):
+    if not session.get("logged_in"):
+        return redirect("/admin")
+    
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
