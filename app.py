@@ -1,11 +1,18 @@
-import os
 from flask import Flask, render_template, request, redirect
-from database import init_db, get_guests, add_guest, item_exists
+from flask_sqlalchemy import SQLAlchemy
+from models import db, Guest
+import os
 
 app = Flask(__name__)
 
-# Datenbank initialisieren
-init_db()
+# Datenbank-Konfiguration
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///guests.db")  # lokal SQLite fallback
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -13,15 +20,19 @@ def index():
         name = request.form["name"]
         item = request.form["item"]
 
-        # Check ob Item schon vergeben ist
-        if item_exists(item):
-            guests = get_guests()
+        # Prüfen ob das Item schon vergeben ist
+        if Guest.query.filter(db.func.lower(Guest.item) == item.lower()).first():
+            guests = Guest.query.all()
             return render_template("index.html", guests=guests, error=f"'{item}' wurde schon eingetragen!")
 
-        add_guest(name, item)
+        # Neuen Eintrag speichern
+        new_guest = Guest(name=name, item=item)
+        db.session.add(new_guest)
+        db.session.commit()
+
         return redirect("/")
 
-    guests = get_guests()
+    guests = Guest.query.all()
     return render_template("index.html", guests=guests, error=None)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
