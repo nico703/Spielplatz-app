@@ -34,6 +34,10 @@ def index():
 
     guests = Guest.query.all()
     return render_template("index.html", guests=guests, error=None)
+@app.route("/admin")
+def admin():
+    guest = Guest.query.all()
+    return render_template("admin.html", guests=guests)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
