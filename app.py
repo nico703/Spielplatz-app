@@ -65,12 +65,17 @@ def delete_guest(guest_id):
     if not session.get("logged_in"):
         return redirect("/admin")
     
+    guest = Guest.query.get_or_404(guest_id)
+    db.session.delete(guest)
+    db.session.commit()
+    return redirect("/admin")
+    
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-@aapp.route("/edit/<int:guest_id>", methods=["GET", "POST"])
+@app.route("/edit/<int:guest_id>", methods=["GET", "POST"])
 def edit_guest(guest_id):
     guest = Guest.query.get_or_404(guest_id)
 
@@ -80,7 +85,7 @@ def edit_guest(guest_id):
         db.session.commit()
         return redirect("/admin")
     
-    return render_template("edit_guest.html")
+    return render_template("edit_guest.html", guest=guest)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
