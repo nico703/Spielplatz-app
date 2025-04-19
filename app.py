@@ -70,6 +70,18 @@ def logout():
     session.clear()
     return redirect("/")
 
+@aapp.route("/edit/<int:guest_id>", methods=["GET", "POST"])
+def edit_guest(guest_id):
+    guest = Guest.query.get_or_404(guest_id)
+
+    if request.method == "POST":
+        guest.name = request.form["name"]
+        guest.item = request.form["item"]
+        db.session.commit()
+        return redirect("/admin")
+    
+    return render_template("edit_guest.html")
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
