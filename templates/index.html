@@ -30,6 +30,7 @@
 <body>
 <div class="container py-5">
     <h1 class="text-center mb-4">Spielplatz – Wer bringt was mit?</h1>
+    <div id="countdown" class="fs-5 text-light text-center mb-4" style="text-shadow: 0 1px 3px rgba(0,0,0,0.4);"></div>
     {% if error %}
 <div class="alert alert-warning text-center">
     {{ error }}
@@ -72,5 +73,26 @@
         </ul>
     </div>
 </div>
+<script>
+    const partyDate = new Date("2025-04-26T00:00:00"); // Nur auf Tagesebene vergleichen
+    const countdownEl = document.getElementById("countdown");
+  
+    function updateCountdown() {
+      const now = new Date();
+      const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diff = partyDate - nowMidnight;
+  
+      if (diff <= 0) {
+        countdownEl.innerHTML = "Es ist soweit – viel Spaß!";
+        return;
+      }
+  
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      countdownEl.innerHTML = `Nur noch <strong>${days} Tage</strong>`;
+    }
+  
+    updateCountdown();
+    setInterval(updateCountdown, 3600000); // stündlich aktualisieren
+  </script>
 </body>
 </html>
